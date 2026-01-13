@@ -8,7 +8,7 @@ def choose(n, k):
     if 0 <= k <= n:
         ntok = 1
         ktok = 1
-        for t in xrange(1, min(k, n - k) + 1):
+        for t in range(1, min(k, n - k) + 1):
             ntok *= n
             ktok *= t
             n -= 1
@@ -115,7 +115,7 @@ class StrategyProfile(object):
         expected_values = self.ev_helper(self.gametree.root, [{(): 1} for _ in range(self.rules.players)])
         for ev in expected_values:
             assert(len(ev) == 1)
-        return tuple(next(ev.itervalues()) for ev in expected_values) # pull the EV from the dict returned
+        return tuple(next(iter(ev.values())) for ev in expected_values) # pull the EV from the dict returned
 
     def old_ev_helper(self, root, pathprobs):
         if type(root) is TerminalNode:
@@ -177,7 +177,7 @@ class StrategyProfile(object):
 
     def ev_holecard_node(self, root, reachprobs):
         assert(len(root.children) == 1)
-        prevlen = len(reachprobs[0].keys()[0])
+        prevlen = len(list(reachprobs[0].keys())[0])
         possible_deals = float(choose(len(root.deck) - prevlen,root.todeal))
         next_reachprobs = [{ hc: reachprobs[player][hc[0:prevlen]] / possible_deals for hc in root.children[0].holecards[player] } for player in range(self.rules.players)]
         subpayoffs = self.ev_helper(root.children[0], next_reachprobs)
@@ -189,7 +189,7 @@ class StrategyProfile(object):
         return payoffs
 
     def ev_boardcard_node(self, root, reachprobs):
-        prevlen = len(reachprobs[0].keys()[0])
+        prevlen = len(list(reachprobs[0].keys())[0])
         possible_deals = float(choose(len(root.deck) - prevlen,root.todeal))
         payoffs = [{ hc: 0 for hc in root.holecards[player] } for player in range(self.rules.players)]
         for bc in root.children:
@@ -221,10 +221,10 @@ class StrategyProfile(object):
                 if subpayoff is None:
                     continue
                 if root.player == player:
-                    for hc,winnings in subpayoff[player].iteritems():
+                    for hc,winnings in subpayoff[player].items():
                         player_payoffs[hc] += winnings * action_probs[hc][action]
                 else:
-                    for hc,winnings in subpayoff[player].iteritems():
+                    for hc,winnings in subpayoff[player].items():
                         player_payoffs[hc] += winnings
             payoffs.append(player_payoffs)
         return payoffs
@@ -242,7 +242,7 @@ class StrategyProfile(object):
         expected_values = self.br_helper(self.publictree.root, [{(): 1} for _ in range(self.rules.players)], responses)
         for ev in expected_values:
             assert(len(ev) == 1)
-        expected_values = tuple(next(ev.itervalues()) for ev in expected_values) # pull the EV from the dict returned
+        expected_values = tuple(next(iter(ev.values())) for ev in expected_values) # pull the EV from the dict returned
         return (StrategyProfile(self.rules, responses), expected_values)
 
     def br_helper(self, root, reachprobs, responses):
@@ -256,7 +256,7 @@ class StrategyProfile(object):
 
     def br_holecard_node(self, root, reachprobs, responses):
         assert(len(root.children) == 1)
-        prevlen = len(reachprobs[0].keys()[0])
+        prevlen = len(list(reachprobs[0].keys())[0])
         possible_deals = float(choose(len(root.deck) - prevlen,root.todeal))
         next_reachprobs = [{ hc: reachprobs[player][hc[0:prevlen]] / possible_deals for hc in root.children[0].holecards[player] } for player in range(self.rules.players)]
         subpayoffs = self.br_helper(root.children[0], next_reachprobs, responses)
@@ -268,7 +268,7 @@ class StrategyProfile(object):
         return payoffs
 
     def br_boardcard_node(self, root, reachprobs, responses):
-        prevlen = len(reachprobs[0].keys()[0])
+        prevlen = len(list(reachprobs[0].keys())[0])
         possible_deals = float(choose(len(root.deck) - prevlen,root.todeal))
         payoffs = [{ hc: 0 for hc in root.holecards[player] } for player in range(self.rules.players)]
         for bc in root.children:
@@ -302,7 +302,7 @@ class StrategyProfile(object):
                 for subpayoff in action_payoffs:
                     if subpayoff is None:
                         continue
-                    for hc,winnings in subpayoff[player].iteritems():
+                    for hc,winnings in subpayoff[player].items():
                         player_payoffs[hc] += winnings
                 payoffs.append(player_payoffs)
         return payoffs

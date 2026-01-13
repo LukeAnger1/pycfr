@@ -12,7 +12,7 @@ class CounterfactualRegretMinimizer(object):
         self.action_reachprobs = []
         self.tree = PublicTree(rules)
         self.tree.build()
-        print 'Information sets: {0}'.format(len(self.tree.information_sets))
+        print('Information sets: {0}'.format(len(self.tree.information_sets)))
         for s in self.profile.strategies:
             s.build_default(self.tree)
             self.counterfactual_regret.append({ infoset: [0,0,0] for infoset in s.policy })
@@ -58,7 +58,7 @@ class CounterfactualRegretMinimizer(object):
 
     def cfr_holecard_node(self, root, reachprobs):
         assert(len(root.children) == 1)
-        prevlen = len(reachprobs[0].keys()[0])
+        prevlen = len(list(reachprobs[0].keys())[0])
         possible_deals = float(choose(len(root.deck) - prevlen,root.todeal))
         next_reachprobs = [{ hc: reachprobs[player][hc[0:prevlen]] / possible_deals for hc in root.children[0].holecards[player] } for player in range(self.rules.players)]
         subpayoffs = self.cfr_helper(root.children[0], next_reachprobs)
@@ -70,7 +70,7 @@ class CounterfactualRegretMinimizer(object):
         return payoffs
 
     def cfr_boardcard_node(self, root, reachprobs):
-        prevlen = len(reachprobs[0].keys()[0])
+        prevlen = len(list(reachprobs[0].keys())[0])
         possible_deals = float(choose(len(root.deck) - prevlen,root.todeal))
         payoffs = [{ hc: 0 for hc in root.holecards[player] } for player in range(self.rules.players)]
         for bc in root.children:
@@ -102,7 +102,7 @@ class CounterfactualRegretMinimizer(object):
             for i,subpayoff in enumerate(action_payoffs):
                 if subpayoff is None:
                     continue
-                for hc,winnings in subpayoff[player].iteritems():
+                for hc,winnings in subpayoff[player].items():
                     # action_probs is baked into reachprobs for everyone except the acting player
                     if player == root.player:
                         player_payoffs[hc] += winnings * action_probs[hc][i]
@@ -140,7 +140,7 @@ class CounterfactualRegretMinimizer(object):
         for i,subpayoff in enumerate(action_payoffs):
             if subpayoff is None:
                 continue
-            for hc,winnings in subpayoff[root.player].iteritems():
+            for hc,winnings in subpayoff[root.player].items():
                 immediate_cfr = winnings - ev[hc]
                 infoset = self.rules.infoset_format(root.player, hc, root.board, root.bet_history)
                 self.counterfactual_regret[root.player][infoset][i] += immediate_cfr
@@ -198,7 +198,7 @@ class PublicChanceSamplingCFR(CounterfactualRegretMinimizer):
 
     def cfr_holecard_node(self, root, reachprobs):
         assert(len(root.children) == 1)
-        prevlen = len(reachprobs[0].keys()[0])
+        prevlen = len(list(reachprobs[0].keys())[0])
         possible_deals = float(choose(len(root.deck) - len(self.board) - prevlen,root.todeal))
         next_reachprobs = [{ hc: reachprobs[player][hc[0:prevlen]] / possible_deals for hc in root.children[0].holecards[player] if not self.has_boardcard(hc) } for player in range(self.rules.players)]
         subpayoffs = self.cfr_helper(root.children[0], next_reachprobs)
