@@ -15,13 +15,20 @@ import time
 
 def create_holdem_rules():
     """
-    Create a simplified heads-up Texas Hold'em game rules.
-    Uses a limited deck for faster training.
+    Create a simplified heads-up poker game rules.
+    Uses a limited deck and simplified rules for faster training.
+
+    This is a Royal Poker variant - similar to Texas Hold'em but:
+    - Only 1 hole card per player (instead of 2)
+    - Smaller deck (8 cards: J, Q, K, A in 2 suits)
+    - 3 rounds: preflop, flop (1 card), turn (1 card)
+
+    For full Texas Hold'em, you'd need a 52-card deck and days of training.
     """
-    # Create a limited deck (e.g., 6-card deck for faster training)
-    # You can expand this to a full 52-card deck for complete training
+    # Create a limited deck for feasible training time
+    # Using high cards only: J, Q, K, A in two suits
     ranks = [Card.RANK_JACK, Card.RANK_QUEEN, Card.RANK_KING, Card.RANK_ACE]
-    suits = [1, 2]  # Spades and Hearts only for faster training
+    suits = [1, 2]  # Spades and Hearts only
 
     deck = [Card(rank, suit) for rank in ranks for suit in suits]
 
@@ -31,15 +38,18 @@ def create_holdem_rules():
     # Game parameters
     players = 2
     ante = 1
-    blinds = [1, 2]  # Small blind = 1, Big blind = 2
+    blinds = None  # Simplified - use ante instead of blinds
 
-    # Round structure: (hole cards, board cards, bet size, max bets per player)
+    # Simplified round structure
+    # Note: 1 hole card (not 2) makes the game tractable
     rounds = [
-        RoundInfo(holecards=2, boardcards=0, betsize=2, maxbets=[2, 2]),  # Preflop
-        RoundInfo(holecards=0, boardcards=3, betsize=2, maxbets=[2, 2]),  # Flop
+        RoundInfo(holecards=1, boardcards=0, betsize=2, maxbets=[2, 2]),  # Preflop
+        RoundInfo(holecards=0, boardcards=1, betsize=4, maxbets=[2, 2]),  # Flop
         RoundInfo(holecards=0, boardcards=1, betsize=4, maxbets=[2, 2]),  # Turn
-        RoundInfo(holecards=0, boardcards=1, betsize=4, maxbets=[2, 2]),  # River
     ]
+
+    # Use Royal poker evaluation (from pokergames.py)
+    from pokergames import royal_eval, royal_format
 
     rules = GameRules(
         players=players,
@@ -47,7 +57,8 @@ def create_holdem_rules():
         rounds=rounds,
         ante=ante,
         blinds=blinds,
-        handeval=HandEvaluator.evaluate_hand
+        handeval=royal_eval,
+        infoset_format=royal_format
     )
 
     return rules
@@ -126,14 +137,15 @@ def print_detailed_strategy(cfr_trainer, output_file=None):
 
 def train_holdem(iterations=1000, algorithm='vanilla'):
     """
-    Train a Texas Hold'em strategy using CFR.
+    Train a simplified poker strategy using CFR.
 
     Args:
         iterations: Number of CFR iterations to run
         algorithm: 'vanilla', 'chance', or 'outcome' for different CFR variants
     """
     print("\n" + "="*80)
-    print("TEXAS HOLD'EM POKER - CFR TRAINING")
+    print("SIMPLIFIED POKER - CFR TRAINING")
+    print("(Royal Poker variant - 1 hole card, 8-card deck)")
     print("="*80)
 
     # Create game rules
@@ -194,7 +206,7 @@ def train_holdem(iterations=1000, algorithm='vanilla'):
     print("="*80)
 
     for player in range(rules.players):
-        filename = f"holdem_strategy_p{player}.txt"
+        filename = f"poker_strategy_p{player}.txt"
         trainer.profile.strategies[player].save_to_file(filename)
         print(f"Player {player} strategy saved to: {filename}")
 
