@@ -17,9 +17,11 @@ This will let you choose between:
 - **Leduc Poker**: Small but interesting game, trains in under a minute
 - **Both**: Run both demos sequentially
 
-### 2. Texas Hold'em Training
+### 2. Simplified Poker Training
 
-Train on a simplified Texas Hold'em variant:
+Train on a Royal Poker variant (simplified multi-round poker):
+
+**Important:** This is NOT full Texas Hold'em. It uses 1 hole card (not 2) and an 8-card deck to make training tractable. Full Hold'em with 52 cards would require days/weeks of training and extensive optimization.
 
 ```bash
 # Basic usage (1000 iterations with chance sampling)
@@ -34,6 +36,12 @@ python train_holdem.py 5000 chance
 # Full syntax
 python train_holdem.py [iterations] [algorithm]
 ```
+
+**Game details:**
+- 8 cards (J, Q, K, A in 2 suits)
+- 1 hole card per player
+- 3 betting rounds (preflop, flop, turn)
+- ~8,600 information sets
 
 **Available algorithms:**
 - `chance` - Public Chance Sampling CFR (default, fastest)
@@ -73,10 +81,10 @@ Lower exploitability means a better strategy that's harder to exploit.
 After training, strategies are saved to text files:
 
 ```
-holdem_strategy_p0.txt    # Player 0 strategy
-holdem_strategy_p1.txt    # Player 1 strategy
-leduc_strategy_p0.txt     # From demo
-leduc_strategy_p1.txt     # From demo
+poker_strategy_p0.txt     # Player 0 strategy (from train_holdem.py)
+poker_strategy_p1.txt     # Player 1 strategy (from train_holdem.py)
+leduc_strategy_p0.txt     # Player 0 strategy (from demo)
+leduc_strategy_p1.txt     # Player 1 strategy (from demo)
 ```
 
 Each file contains the complete strategy in a format that can be loaded later:
@@ -154,11 +162,11 @@ train_holdem(iterations=5000, algorithm='outcome')
 |------|-----------|------------------|----------------|
 | Kuhn Poker | 3 cards | ~3 | Seconds |
 | Leduc Poker | 6 cards | ~30 | 1-2 minutes |
-| Royal Poker | 8 cards | ~200 | 5-10 minutes |
-| Simplified Hold'em | 8 cards | ~500-1000 | 10-30 minutes |
-| Full Hold'em | 52 cards | Millions | Days/Weeks |
+| Royal Poker (train_holdem.py) | 8 cards | ~8,600 | 10-30 minutes |
+| Full Hold'em | 52 cards | Millions+ | Days/Weeks** |
 
 *Approximate times for 10,000 iterations using chance sampling CFR
+**Not supported by this library - would require extensive optimization
 
 ## Troubleshooting
 
