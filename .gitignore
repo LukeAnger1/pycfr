@@ -33,3 +33,8 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Generated strategy files from training
+*_strategy_p*.txt
+poker_strategy_p*.txt
+leduc_strategy_p*.txt
